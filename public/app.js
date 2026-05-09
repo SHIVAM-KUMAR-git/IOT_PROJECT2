@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000'; // Change to relative '/' for production
+const API_BASE = ''; // Use relative paths so it works automatically on localhost and Render
 
 document.addEventListener('DOMContentLoaded', () => {
     

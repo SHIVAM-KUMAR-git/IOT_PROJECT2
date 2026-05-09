@@ -13,8 +13,8 @@
 // ==========================================
 // CONFIGURATION
 // ==========================================
-const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
+const char* ssid = "Sk";
+const char* password = "Password";
 
 // Render Backend URLs (Replace with your actual Render URL)
 const String serverUrl = "https://your-backend.onrender.com/api/sensor-data";

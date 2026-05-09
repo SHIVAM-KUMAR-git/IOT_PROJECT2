@@ -9,8 +9,13 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1); // Trust Render's load balancer
+
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: function(origin, callback) { return callback(null, true); }, // Allow all origins dynamically
+    credentials: true
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public'))); // Serve static files from public directory
@@ -19,7 +24,10 @@ app.use(session({
     secret: 'sistec_iot_secret_key_2026',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set to true if using HTTPS only
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production' || process.env.RENDER === 'true', // Use secure cookies on Render
+        sameSite: 'lax'
+    }
 }));
 
 // Helper function to read/write JSON database
@@ -88,7 +96,10 @@ app.post('/login', async (req, res) => {
 
     req.session.userId = user.id;
     req.session.userName = user.name;
-    res.json({ message: 'Login successful', userName: user.name });
+    req.session.save((err) => {
+        if (err) return res.status(500).json({ error: 'Session save failed' });
+        res.json({ message: 'Login successful', userName: user.name });
+    });
 });
 
 app.get('/logout', (req, res) => {
