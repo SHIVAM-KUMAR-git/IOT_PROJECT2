@@ -1,0 +1,4 @@
+node_modules/
+esp8266/
+
+db.json

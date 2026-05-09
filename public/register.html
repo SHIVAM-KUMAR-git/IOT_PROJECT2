@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTec IoT - Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+    
+    <!-- Dark Overlay -->
+    <div class="absolute inset-0 bg-black opacity-70"></div>
+
+    <div class="glass-card relative z-10 w-full max-w-md p-8 rounded-2xl shadow-2xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-cyan-400 mb-2">SISTec Smart IoT</h1>
+            <p class="text-gray-300">Create an Account</p>
+        </div>
+
+        <form id="registerForm" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium mb-2">Full Name</label>
+                <input type="text" id="regName" required class="w-full px-4 py-3 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none transition-colors text-white placeholder-gray-400" placeholder="John Doe">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2">Email Address</label>
+                <input type="email" id="regEmail" required class="w-full px-4 py-3 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none transition-colors text-white placeholder-gray-400" placeholder="admin@sistec.ac.in">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2">Password</label>
+                <input type="password" id="regPassword" required class="w-full px-4 py-3 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none transition-colors text-white placeholder-gray-400" placeholder="••••••••">
+            </div>
+            
+            <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 rounded-lg font-bold transition-all transform hover:scale-105">
+                Register
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-gray-300">
+            Already have an account? <a href="index.html" class="text-cyan-400 hover:underline">Login here</a>
+        </p>
+        
+        <div id="regErrorMsg" class="mt-4 text-center text-red-400 hidden"></div>
+        <div id="regSuccessMsg" class="mt-4 text-center text-green-400 hidden"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

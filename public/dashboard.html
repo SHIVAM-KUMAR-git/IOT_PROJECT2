@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTec IoT - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- JustGage for Dial Gauge -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.4.0/justgage.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen">
+    
+    <!-- Navbar -->
+    <nav class="glass-header sticky top-0 z-50 border-b border-gray-700 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-microchip text-cyan-400 text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-wider">SISTec IoT 2026</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="userNameDisplay" class="text-gray-300 font-medium">Welcome, User</span>
+                <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors shadow-lg">
+                    <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 md:p-6 space-y-8">
+        
+        <!-- SECTION 1: LIVE SENSOR CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            
+            <!-- Temperature Gauge Card -->
+            <div class="glass-card p-6 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
+                <div class="absolute top-4 left-4 text-cyan-400"><i class="fa-solid fa-temperature-half"></i></div>
+                <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Temperature</h2>
+                <div id="tempGauge" class="w-full h-32"></div>
+            </div>
+
+            <!-- Humidity Card -->
+            <div class="glass-card p-6 rounded-2xl flex flex-col justify-center relative">
+                <div class="absolute top-4 right-4 text-blue-400"><i class="fa-solid fa-droplet"></i></div>
+                <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Humidity</h2>
+                <div class="text-4xl font-bold text-blue-300 mb-4" id="humValue">0%</div>
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div id="humBar" class="bg-blue-500 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Soil Moisture Card -->
+            <div class="glass-card p-6 rounded-2xl flex flex-col justify-center relative">
+                <div class="absolute top-4 right-4 text-green-400"><i class="fa-solid fa-leaf"></i></div>
+                <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Soil Moisture</h2>
+                <div class="text-4xl font-bold text-green-300 mb-2" id="soilValue">0%</div>
+                <div id="soilStatus" class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gray-700 text-gray-300">Unknown</div>
+            </div>
+
+            <!-- IR Sensor Status Card -->
+            <div class="glass-card p-6 rounded-2xl flex flex-col justify-center items-center relative">
+                <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">IR Status</h2>
+                <div id="irIndicator" class="w-16 h-16 rounded-full bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.6)] mb-4 transition-all duration-300 flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-check text-white" id="irIcon"></i>
+                </div>
+                <div id="irText" class="font-bold text-lg text-green-400">Clear</div>
+            </div>
+
+            <!-- Object Counter Card -->
+            <div class="glass-card p-6 rounded-2xl flex flex-col justify-center items-center border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 to-transparent">
+                <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Object Count</h2>
+                <div class="text-6xl font-black text-indigo-400 drop-shadow-lg" id="objCountValue">0</div>
+                <button id="resetCountBtn" class="mt-4 text-xs text-gray-400 hover:text-white underline">Reset</button>
+            </div>
+
+        </div>
+
+        <!-- SECTION 2: LIVE GRAPHS & BLYNK / LCD CONTROLS -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Main Chart Area -->
+            <div class="glass-card p-6 rounded-2xl lg:col-span-2">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-cyan-400"></i> Live Telemetry
+                </h2>
+                <div class="w-full h-64">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Control Panel (LCD & Blynk) -->
+            <div class="space-y-6">
+                <!-- LCD Message -->
+                <div class="glass-card p-6 rounded-2xl border border-yellow-500/30">
+                    <h2 class="text-lg font-bold mb-4 text-yellow-400 flex items-center gap-2">
+                        <i class="fa-solid fa-display"></i> LCD Display Control
+                    </h2>
+                    <form id="lcdForm" class="space-y-3">
+                        <input type="text" id="lcdInput" maxlength="16" class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-600 focus:border-yellow-400 focus:outline-none text-white font-mono text-center tracking-widest uppercase" placeholder="MAX 16 CHARS" required>
+                        <button type="submit" class="w-full py-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg font-bold transition-colors">Send to LCD</button>
+                    </form>
+                    <div id="lcdFeedback" class="mt-2 text-xs text-center text-green-400 hidden">Message Sent!</div>
+                </div>
+
+                <!-- Blynk LED -->
+                <div class="glass-card p-6 rounded-2xl border border-purple-500/30 text-center">
+                    <h2 class="text-lg font-bold mb-4 text-purple-400 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-lightbulb"></i> Blynk LED Control
+                    </h2>
+                    <div class="flex gap-4 justify-center">
+                        <button id="ledOnBtn" class="px-6 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-bold flex-1 transition-transform hover:scale-105 shadow-[0_0_15px_rgba(22,163,74,0.4)]">ON</button>
+                        <button id="ledOffBtn" class="px-6 py-3 bg-red-600 hover:bg-red-500 rounded-lg font-bold flex-1 transition-transform hover:scale-105 shadow-[0_0_15px_rgba(220,38,38,0.4)]">OFF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: HISTORY TABLE -->
+        <div class="glass-card p-6 rounded-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-cyan-400"></i> Sensor History
+                </h2>
+                <button id="refreshTableBtn" class="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded transition-colors">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Refresh
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-800 text-gray-400 uppercase text-xs">
+                        <tr>
+                            <th class="px-4 py-3 rounded-tl-lg">Date</th>
+                            <th class="px-4 py-3">Time</th>
+                            <th class="px-4 py-3">Temp (°C)</th>
+                            <th class="px-4 py-3">Hum (%)</th>
+                            <th class="px-4 py-3">Soil (%)</th>
+                            <th class="px-4 py-3">IR Status</th>
+                            <th class="px-4 py-3">Count</th>
+                            <th class="px-4 py-3 rounded-tr-lg text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody" class="divide-y divide-gray-700">
+                        <!-- Rows dynamically generated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
